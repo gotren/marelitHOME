@@ -1,0 +1,202 @@
+{
+    "common": {
+        "name":                    "esp8266",
+        "version":                  "0.0.1",
+        "title":                      "esp8266 Adapter",
+        "desc":                     {
+            "en": "Lets control the esp8266",
+            "de": "Ermöglicht die steuerung von esp8266",
+            "ru": "Позволяет управлять esp8266"
+        },
+        "authors": [
+            "bluefox <gotren@rambler.ru>"
+        ],
+        "license":                  "MIT",
+        "platform":                 "Javascript/Node.js",
+        "mode":                     "daemon",
+        "loglevel":                 "info",
+        "icon":                     "esp8266.png",
+        "messagebox":               true,
+        "readme":                   "https://raw.githubusercontent.com/ioBroker/ioBroker.esp8266/master/README.md",
+        "keywords":                 ["esp8266", "communication"],
+		"enabled":                  false,
+        "extIcon":                  "https://raw.githubusercontent.com/ioBroker/ioBroker.esp8266/master/admin/megad.png",
+        "type":                     "hardware",
+        "config": {
+            "width":     900,
+            "height":    800,
+            "minWidth":  500,
+            "minHeight": 500
+        }
+    },
+    "native": {
+        "ip":                       "",
+        "name":                     "",
+        "port":                     80,
+        "pollInterval":             30,
+        "password":                 "sec",
+        "longPress":                400,
+        "ports": [
+            {
+                "name":    "port0",
+                "input":   true,
+                "switch":  true,
+                "offset":  0,
+                "factor":  1,
+                "digital": false,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port1",
+                "input":   true,
+                "switch":  true,
+                "offset":  0,
+                "factor":  1,
+                "digital": false,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port2",
+                "input":   true,
+                "switch":  true,
+                "offset":  0,
+                "factor":  1,
+                "digital": false,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port3",
+                "input":   true,
+                "switch":  true,
+                "offset":  0,
+                "factor":  1,
+                "digital": false,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port4",
+                "input":   true,
+                "switch":  true,
+                "offset":  0,
+                "factor":  1,
+                "digital": false,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port5",
+                "input":   true,
+                "switch":  true,
+                "offset":  0,
+                "factor":  1,
+                "digital": false,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port6",
+                "input":   true,
+                "switch":  true,
+                "offset":  0,
+                "factor":  1,
+                "digital": false,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port7",
+                "input":   false,
+                "switch":  false,
+                "offset":  0,
+                "factor":  1,
+                "digital": true,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port8",
+                "input":   false,
+                "switch":  false,
+                "offset":  0,
+                "factor":  1,
+                "digital": true,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port9",
+                "input":   false,
+                "switch":  false,
+                "offset":  0,
+                "factor":  1,
+                "digital": true,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port10",
+                "input":   false,
+                "switch":  false,
+                "offset":  0,
+                "factor":  1,
+                "digital": true,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port11",
+                "input":   false,
+                "switch":  false,
+                "offset":  0,
+                "factor":  1,
+                "digital": true,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port12",
+                "input":   false,
+                "switch":  false,
+                "offset":  0,
+                "factor":  1,
+                "digital": true,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port13",
+                "input":   false,
+                "switch":  false,
+                "offset":  0,
+                "factor":  1,
+                "digital": true,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port14",
+                "input":   false,
+                "switch":  false,
+                "offset":  0,
+                "factor":  1,
+                "digital": true,
+                "long":    false,
+                "double":  0
+            },
+            {
+                "name":    "port15",
+                "input":   false,
+                "switch":  false,
+                "offset":  0,
+                "factor":  1,
+                "digital": true,
+                "long":    false,
+                "double":  0
+            }
+        ]
+    }
+}

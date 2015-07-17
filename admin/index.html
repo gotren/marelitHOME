@@ -1,0 +1,121 @@
+<html>
+
+<link rel="stylesheet" type="text/css" href="../../lib/css/themes/jquery-ui/redmond/jquery-ui.min.css"/>
+<link rel="stylesheet" type="text/css" href="../../lib/css/jqGrid/ui.jqgrid-4.5.4.css"/>
+<script type="text/javascript" src="../../lib/js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="../../socket.io/socket.io.js"></script>
+<script type="text/javascript" src="../../lib/js/jquery-ui-1.10.3.full.min.js"></script>
+<script type="text/javascript" src="../../lib/js/jqGrid/jquery.jqGrid-4.5.4.min.js"></script>
+<script type="text/javascript" src="../../lib/js/jqGrid/grid.locale-all.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../../css/adapter.css"/>
+<script type="text/javascript" src="../../js/translate.js"></script>
+<script type="text/javascript" src="../../js/adapter-settings.js"></script>
+
+<script type="text/javascript">
+    systemDictionary = {
+        "esp8266 Name:":          {"en": "esp8266 Name:",           "de": "esp8266 Name:",              "ru": "esp8266 Имя:"},
+        "ioBroker Web Port:":   {"en": "ioBroker Web Port:",    "de": "ioBroker Web Port:",       "ru": "ioBroker веб-порт:"},
+        "Poll interval (sec):": {"en": "Poll interval (sec):",  "de": "Abfrage Intervall (sek):", "ru": "Интервал опроса (сек):"},
+        "esp8266 Password:":      {"en": "esp8266 Password:",       "de": "esp8266 Kennword:",          "ru": "esp8266 Пароль:"},
+        "name":                 {"en": "Name",                  "de": "Name",                     "ru": "Имя"},
+        "input":                {"en": "Input",                 "de": "Eingang",                  "ru": "Вход"},
+        "switch":               {"en": "Switch",                "de": "Schalter",                 "ru": "Переключатель"},
+        "offset":               {"en": "Offset",                "de": "Offset",                   "ru": "Сдвиг"},
+        "factor":               {"en": "Factor",                "de": "Factor",                   "ru": "Множитель"},
+        "digital":              {"en": "Digital",               "de": "Digital",                  "ru": "Цифровой"},
+        "long":                 {"en": "Long press",            "de": "Long press",               "ru": "Удержание"},
+        "double":               {"en": "Double click ms",       "de": "Double click ms",          "ru": "Двойное нажатие"},
+        "Ports":                {"en": "Ports",                 "de": "Ports",                    "ru": "Порты"},
+        "Long press detect (ms):": {"en": "Long press detection (ms):", "de": "Langes-Drucken-Erkennung (ms):", "ru": "Интервал для длинного нажатия (мс):"},
+        "esp8266 adapter settings": {"en": "esp8266 adapter settings", "de": "esp8266 Adaptereinstellungen", "ru": "esp8266 настройки"},
+        "IP:":                  {"en": "esp8266 IP:",             "de": "esp8266 IP:",                "ru": "IP Адрес устройства:"}
+    };
+
+    // the function loadSettings has to exist ...
+    function load(settings, onChange) {
+        if (!settings) return;
+
+        if (settings.longPress === undefined) settings.longPress = 400;
+
+        $('.value').each(function () {
+            var key = $(this).attr('id');
+            // example: select elements with id=key and class=value and insert value
+            if ($(this).attr('type') == 'checkbox') {
+                $(this).prop('checked', settings[key]).change(function() {
+                    if ($('#auth').prop('checked')) {
+                        $('#secure').prop('checked', true);
+                    }
+                    onChange();
+                });
+            } else {
+                $(this).val(settings[key]).change(function() {
+                    onChange();
+                }).keyup(function() {
+                    onChange();
+                });
+            }
+        });
+
+        editTable({
+            tabId: 'ports',
+            cols: [
+                {name: 'name'},
+                {name: 'input',   checkbox: 'true', width: 45},
+                {name: 'switch',  checkbox: 'true', width: 90},
+                {name: 'offset',                    width: 45},
+                {name: 'factor',                    width: 65},
+                {name: 'digital', checkbox: 'true', width: 60},
+                {name: 'long',    checkbox: 'true', width: 90},
+                {name: 'double',                    width: 90}
+            ],
+            values: settings.ports,
+            top: 360,
+            title: 'Ports',
+            onChange: function () {
+                onChange();
+            }
+        });
+
+        $('.ui-jqgrid-bdiv').css({'overflow-x': 'hidden'});
+        onChange(false);
+    }
+
+    // ... and the function save has to exist.
+    // you have to make sure the callback is called with the settings object as first param!
+    function save(callback) {
+        // example: select elements with class=value and build settings object
+        var obj = {};
+        $('.value').each(function () {
+            var $this = $(this);
+            if ($this.attr('type') == 'checkbox') {
+                obj[$this.attr('id')] = $this.prop('checked');
+            } else {
+                obj[$this.attr('id')] = $this.val();
+            }
+        });
+
+        // Get edited table
+        obj.ports = getTableResult('ports', ['name', 'input', 'switch', 'offset', 'factor', 'digital', 'long', 'double']);
+
+        callback(obj);
+    }
+</script>
+
+<!-- you have to put your config page in a div with id adapter-container -->
+<div id="adapter-container">
+
+    <table><tr><td><img src="esp8266.png"></td><td><h3 class="translate">esp8266-328 adapter settings</h3></td></tr></table>
+
+    <table>
+        <tr><td class="translate" style="text-align: right">IP:</td><td>                    <input  class="value" id="ip"/></select></td>
+            <td class="translate" style="text-align: right">esp8266 Name:</td><td>            <input  class="value" id="name"/></td></tr>
+        <tr><td class="translate" style="text-align: right">ioBroker Web Port:</td><td>     <input  class="value" id="port"         maxlength="5"/></td>
+            <td class="translate" style="text-align: right">Poll interval (sec):</td><td>   <input  class="value" id="pollInterval" maxlength="3"/></td>
+        <tr><td class="translate" style="text-align: right">esp8266 Password:</td><td>        <input  class="value" id="password"     maxlength="3"/></td>
+            <td class="translate" style="text-align: right">Long press detect (ms):</td><td><input  class="value" id="longPress"    maxlength="4"/></td>
+        </tr>
+    </table>
+    <table id="ports"></table><div id="pager-ports"></div>
+</div>
+</html>
