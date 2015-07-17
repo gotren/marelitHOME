@@ -20,7 +20,7 @@
         "readme":                   "https://github.com/gotren/marelitHOME/blob/master/README.md",
         "keywords":                 ["esp8266", "communication"],
 		"enabled":                  false,
-        "extIcon":                  "https://github.com/gotren/marelitHOME/blob/master/admin/esp8266.png",
+        "extIcon":                  "https://raw.githubusercontent.com/gotren/marelitHOME/master/admin/esp8266.png",
         "type":                     "hardware",
         "config": {
             "width":     900,
