@@ -17,10 +17,10 @@
         "loglevel":                 "info",
         "icon":                     "esp8266.png",
         "messagebox":               true,
-        "readme":                   "https://raw.githubusercontent.com/ioBroker/ioBroker.esp8266/master/README.md",
+        "readme":                   "https://github.com/gotren/marelitHOME/blob/master/README.md",
         "keywords":                 ["esp8266", "communication"],
 		"enabled":                  false,
-        "extIcon":                  "https://raw.githubusercontent.com/ioBroker/ioBroker.esp8266/master/admin/megad.png",
+        "extIcon":                  "https://github.com/gotren/marelitHOME/blob/master/admin/esp8266.png",
         "type":                     "hardware",
         "config": {
             "width":     900,
