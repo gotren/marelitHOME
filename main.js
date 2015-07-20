@@ -1,22 +1,46 @@
-/**
- *      ioBroker esp8266 Adapter
- *      07'2015 Gotren
- *      Lets control the esp8266
- *
- *
- *      The device has 14 ports, 0-7 inputs and 8-13 outputs.
- *      To read the state of the port call
- *      http://mega_ip/sec/?pt=4&cmd=get , where sec is password (max 3 chars), 4 is port number
- *      The result will come as "ON", "OFF" or analog value for analog ports
- *
- *      To set the state call:
- *      http://mega_ip/sec/?cmd=2:1 , where sec is password (max 3 chars), 2 is port number, and 1 is the value
- *      For digital ports only 0, 1 and 2 (toggle) are allowed, for analog ports the values from 0 to 255 are allowed
- *
- *      The device can report the changes of ports to some web server in form
- *      http://ioBroker:8090/?pt=6  , where 6 is the port number
- *
- */
+    /**
+     *      ioBroker esp8266 Adapter
+     *      07'2015 marelitHOME
+     *      Lets control the esp8266 over ethernet (http://homes-smart.ru/index.php/oborudovanie/bez-provodov-wi-fi/62-besprovodnoj-datchik-na-baze-esp8266-dlya-servisa-narodmon-ru)
+     *
+     *      Version 0.1
+     *
+     *      The device has N ports.
+     *      To read the state of sensors call: http://esp8266_ip/sensors
+     *      esp8266 sending to server (if checked): 
+     *                          http://esp8266_ip/objects/?script=espdata&idesp=ESP8266009e63b3&dsw1=11.1&dhtt1=22.2&dhth1=33&light=123&
+     *                                             ver=0.1.0 beta&vdd=3263&freemem=18881&gpio0=0&gpio1=0&gpio2=0&gpio3=0&counter=0
+     *      $params['light'];    //Данные с датчика BH1750
+     *      $params['dsw1'];     //Данные с первого датчика DS18B20
+     *      $params['dsw2'];     //Данные со второго датчика DS18B20
+     *      $params['bmpt'];     //Данные с датчика BMP (температура)
+     *      $params['bmpp'];     //Данные с датчика BMP (давление)
+     *      $params['dhtt1'];    //Данные с первого датчика DHT (температура)
+     *      $params['dhth1'];    //Данные с первого датчика DHT (влажность)
+     *      $params['dhtt2'];    //Данные со второго датчика DHT (температура)
+     *      $params['dhth2'];    //Данные со второго датчика DHT (влажность)
+     *      $params['idesp'];    //ID устройства
+     *      $params['ver'];      //Версия прошивки
+     *      $params['vdd'];      //Напряжение на модуле
+     *      $params['freemem'];  //Объем свободной памяти модуля
+     *      $params['counter'];  //Значение счетчика на GPIO1
+     *
+     *      To set the state of GPIO call:
+     *      http://esp8266_ip/gpio?st=1&pin=12 , GPIO 12 set ON (HIGH LEVEL)   
+     *      http://esp8266_ip/gpio?st=1&pin=12&flash=1 , GPIO 12 set ON (HIGH LEVEL) and the setting will be saved to EEPROM   
+     *      http://esp8266_ip/gpioprint , view status of output GPIO   
+     *      http://esp8266_ip/gpioprintinput , view status of input GPIO   
+     *
+     *      RCswitch commands:
+     *      http://esp8266_ip/rcremote?pin=X&cmd=YYYY&per=300&bits=24 , &per=300 default in mks
+     *
+     *      http://esp8266_ip/command?port=value , Value can be ON OFF, Port is number, like http://esp8266_ip/command?4=ON
+     *
+     *      The device can report the changes of ports to some web server in form
+     *      http://ccu.io:8085/?port=Name&value=V  , where "Name" is the digital port name (DO5, DO6, ...) and V is 0 or 1
+     *
+     */
+
 /* jshint -W097 */// jshint strict:false
 /*jslint node: true */
 "use strict";
@@ -58,7 +82,56 @@ adapter.on('stateChange', function (id, state) {
             }
 
             if (ports[id].digital) {
-                sendCommand(ports[id].index, state.val);
+        if (id == 'ports.port0') {
+            id = 0;
+        } else
+        if (id == 'ports.port1') {
+            id = 1;
+        } else
+        if (id == 'ports.port2') {
+            id = 2;
+        } else
+        if (id == 'ports.port3') {
+            id = 3;
+        } else
+        if (id == 'ports.port4') {
+            id = 4;
+        } else
+        if (id == 'ports.port5') {
+            id = 5;
+        } else
+        if (id == 'ports.port6') {
+            id = 6;
+        } else
+        if (id == 'ports.port7') {
+            id = 7;
+        } else
+        if (id == 'ports.port8') {
+            id = 8;
+        } else
+        if (id == 'ports.port9') {
+            id = 9;
+        } else
+        if (id == 'ports.port10') {
+            id = 10;
+        } else
+        if (id == 'ports.port11') {
+            id = 11;
+        } else
+        if (id == 'ports.port12') {
+            id = 12;
+        } else
+        if (id == 'ports.port13') {
+            id = 13;
+        } else
+        if (id == 'ports.port14') {
+            id = 14;
+        } else
+        if (id == 'ports.port15') {
+            id = 15;
+        }
+//                sendCommand(ports[id].index, state.val);
+                sendCommand(id, state.val);
             } else {
                 state.val = (state.val - ports[id].offset) / ports[id].factor * 256;
                 state.val = Math.round(state.val);
@@ -77,20 +150,38 @@ adapter.on('ready', function (obj) {
 });
 
 adapter.on('message', function (obj) {
-    if (obj && obj.command == "send") processMessage(obj.message);
+    if (obj && obj.command) {
+        switch (obj.command) {
+            case 'send':
+                processMessage(obj.message);
+                break;
+
+            case 'discover':
+                discoverMega(obj);
+                break;
+
+            case 'detectPorts':
+                detectPorts(obj);
+                break;
+
+            default:
+                adapter.log.warn('Unknown message: ' + JSON.stringify(obj));
+                break;
+        }
+    }
     processMessages();
 });
 
 function processMessages(ignore) {
     adapter.getMessage(function (err, obj) {
         if (obj) {
-            if (!ignore) processMessage(obj.message);
+            if (!ignore && obj && obj.command == 'send') processMessage(obj.message);
             processMessages();
         }
     });
 }
 
-// Because the only one port is occuped by first instance, the changes to other devices will be send with messages
+// Because the only one port is occupied by first instance, the changes to other devices will be send with messages
 function processMessage(message) {
     var port = parseInt(message, 10);
 
@@ -108,24 +199,65 @@ function processMessage(message) {
     }
 }
 
-var simulate = [
-    "temp:0/hum:0",
-    "OFF/0<br>",
-    "ON/607<br>",
-    "OFF/0<br>",
-    "OFF/0<br>",
-    "OFF/12<br>",
-    "OFF/6<br>",
-    "temp/21.5",
-    "OFF<br>",
-    "OFF",
-    "OFF",
-    "OFF",
-    "OFF",
-    "OFF",
-    "0",
-    "0"
-];
+// Message is IP address
+function detectPorts(obj) {
+    var ip;
+    var password;
+    if (typeof obj.message == 'object') {
+        ip       = obj.message.ip;
+        password = obj.message.password;
+    } else {
+        ip       = obj.message;
+        password = adapter.config.password;
+    }
+    if (ip && ip != '0.0.0.0') {
+        getPortsState(ip, password, function (err, response) {
+            var parts  = response.split(';');
+            var result = [];
+            for (var port = 0; port < parts.length; port++) {
+                var type = 0;
+                var mode = 0;
+                var def  = 0;
+
+                if (parts[port].indexOf('ON/') != -1 || parts[port].indexOf('OFF/') != -1) {
+                    type = 'out';
+                    mode = 'digital';
+                    def  = parts[port].split('/')[1];
+                } else
+                if (parts[port].indexOf('ON') != -1 || parts[port].indexOf('OFF') != -1) {
+                    type = 'in';
+                    mode = 'digital';
+                } else
+                if (parts[port].indexOf('temp')) {
+                    type = 'sensor';
+                    mode = 'default';
+                } else
+                if (parts[port].indexOf('hum')) {
+                    type = 'sensor';
+                    mode = 'dht';
+                } else
+                if (parts[port].indexOf('/')) {
+                    type = 'out';
+                    mode = 'analog';
+                    def  = parts[port].split('/')[1];
+                } else {
+                    type = 'in';
+                    mode = 'analog';
+                }
+
+                result.push({
+                    name: 'port' + port,
+                    type: type,
+                    mode: mode,
+                    def:  def
+                });
+            }
+            if (obj.callback) adapter.sendTo(obj.from, obj.command, {error: err, response: result}, obj.callback);
+        });
+    } else {
+        if (obj.callback) adapter.sendTo(obj.from, obj.command, {error: 'invalid address'}, obj.callback);
+    }
+}
 
 // Get State of ONE port
 function getPortState(port, callback) {
@@ -147,7 +279,7 @@ function getPortState(port, callback) {
             xmldata += chunk;
         });
         res.on('end', function () {
-            adapter.log.debug("response for " + adapter.config.ip + "[" + port + "]: " + xmldata);
+            adapter.log.debug("response for " + adapter.config.ip + "[" + port + ']: ' + xmldata);
             // Analyse answer and updates staties
             if (callback) {
                 callback(port, xmldata);
@@ -162,35 +294,47 @@ function getPortState(port, callback) {
 }
 
 // Get state of ALL ports
-function getPortsState(callback) {
-    var parts = adapter.config.ip.split(':');
+function getPortsState(ip, password, callback) {
+    if (typeof ip == 'function') {
+        callback = ip;
+        ip = null;
+    }
+    if (typeof password == 'function') {
+        callback = password;
+        password = null;
+    }
+    password = (password === undefined || password === null) ? adapter.config.password : password;
+    ip       =  ip || adapter.config.ip;
+
+    var parts = ip.split(':');
 
     var options = {
         host: parts[0],
         port: parts[1] || 80,
-        path: '/' + adapter.config.password + '/?cmd=all'
+        path: '/' + password + '/?cmd=all'
     };
-    adapter.log.debug("getPortState http://" + options.host + options.path);
+
+    adapter.log.debug('getPortState http://' + options.host + options.path);
 
     http.get(options, function (res) {
         var xmldata = '';
         res.on('error', function (e) {
-            adapter.log.warn("esp8266: " + e);
+            adapter.log.warn(e);
         });
         res.on('data', function (chunk) {
             xmldata += chunk;
         });
         res.on('end', function () {
-            adapter.log.debug('Response for ' + adapter.config.ip + '[all]: ' + xmldata);
-            // Analyse answer and updates staties
-            if (callback) {
-                callback(xmldata);
-            }
+            adapter.log.debug('Response for ' + ip + '[all]: ' + xmldata);
+            // Analyse answer and updates statuses
+            if (callback) callback(null, xmldata);
         });
     }).on('error', function (e) {
-        adapter.log.warn('Got error by request ' + e.message);
+        adapter.log.warn('Got error by request to ' + ip + ': ' + e.message);
         if (typeof simulate !== 'undefined') {
-            callback(simulate.join(';'));
+            callback('simulation', simulate.join(';'));
+        } else {
+            callback(e.message);
         }
     });
 }
@@ -301,7 +445,6 @@ function processPortState(_port, value) {
             if (value == 'ON') {
                 value = 1;
             }
-//            value = parseInt(value);
             value = parseFloat(value);
         }
 
@@ -315,32 +458,32 @@ function processPortState(_port, value) {
                 if (_ports[_port].long) {
                     // Detect EDGE
                     if (oldValue != value) {
-                        adapter.log.debug("new state detected on port [" + _port + "]: " + value);
+                        adapter.log.debug('new state detected on port [' + _port + ']: ' + value);
                         // If pressed
                         if (value) {
                             // If no timer running
                             if (!_ports[_port].longTimer) {
-                                adapter.log.debug("start long click detection on [" + _port + "]: " + value);
+                                adapter.log.debug('start long click detection on [' + _port + ']: ' + value);
                                 // Try to detect long click
                                 _ports[_port].longTimer = setTimeout(triggerLongPress, adapter.config.longPress, _port);
                             } else {
-                                adapter.log.warn("long timer runs, but state change happens on [" + _port + "]: " + value);
+                                adapter.log.warn('long timer runs, but state change happens on [' + _port + ']: ' + value);
                             }
                         } else {
                             // If released
                             // If timer for double running => stop it
                             if (_ports[_port].longTimer) {
-                                adapter.log.debug("stop long click detection on [" + _port + "]: " + value);
+                                adapter.log.debug('stop long click detection on [' + _port + ']: ' + value);
                                 clearTimeout(_ports[_port].longTimer);
                                 _ports[_port].longTimer = null;
                             }
 
                             // If long click generated => clear flag and do nothing, elsewise generate normal click
                             if (!_ports[_port].longDone) {
-                                adapter.log.debug("detected short click on port [" + _port + "]: " + value);
+                                adapter.log.debug('detected short click on port [' + _port + ']: ' + value);
                                 adapter.setState(_ports[_port].id, !!value, true);
                             } else {
-                                adapter.log.debug("clear the double click flag on port [" + _port + "]: " + value);
+                                adapter.log.debug('clear the double click flag on port [' + _port + ']: ' + value);
                                 _ports[_port].longDone = false;
                             }
                         }
@@ -348,7 +491,7 @@ function processPortState(_port, value) {
                         adapter.log.debug('ignore state on port [' + _port + ']: ' + value + ' (because the same)');
                     }
                 } else {
-                    adapter.log.debug("detected new state on port [" + _port + "]: " + value);
+                    adapter.log.debug('detected new state on port [' + _port + ']: ' + value);
                     if (value) {
                         triggerShortPress(_port);
                     } else {
@@ -356,10 +499,10 @@ function processPortState(_port, value) {
                     }
                 }
             } else if (_ports[_port].isRollo) {
-                adapter.log.debug("detected new rollo state on port [" + _port + "]: " + value + ", calc state " + ((256 - value) / 256));
+                adapter.log.debug('detected new rollo state on port [' + _port + ']: ' + value + ', calc state ' + ((256 - value) / 256));
                 adapter.setState(_ports[_port].id, ((256 - _ports[_port].value) / 256).toFixed(2), true);
             } else {
-                adapter.log.debug("detected new value on port [" + _port + "]: " + value + ", calc state " + (value / 256));
+                adapter.log.debug('detected new value on port [' + _port + ']: ' + value + ', calc state ' + (value / 256));
                 var f = (value / 256) * _ports[_port].factor + _ports[_port].offset;
                 adapter.setState(_ports[_port].id, f.toFixed(4), true);
             }
@@ -371,7 +514,9 @@ function pollStatus(dev) {
     /*for (var port = 0; port < adapter.config.ports.length; port++) {
         getPortState(port, processPortState);
     }*/
-    getPortsState(function (data) {
+    getPortsState(function (err, data) {
+        if (err) adapter.log.warn(err);
+
         if (data) {
             var ports = data.split(';');
             for (var p = 0; p < ports.length; p++) {
@@ -383,9 +528,10 @@ function pollStatus(dev) {
 
 // Process http://ioBroker:80/instance/?pt=6
 function restApi(req, res) {
-    var values       = {};
-    var url = req.url;
-    var pos = url.indexOf('?');
+    var values = {};
+    var url    = req.url;
+    var pos    = url.indexOf('?');
+
     if (pos != -1) {
         var arr = url.substring(pos + 1).split('&');
         url = url.substring(0, pos);
@@ -680,9 +826,11 @@ function syncObjects() {
                 ports[adapter.config.ports[k].id] = adapter.config.ports[k];
             }
         }
-        
-        pollStatus();
-        setInterval(pollStatus, adapter.config.pollInterval * 1000);
+
+        if (adapter.config.ip && adapter.config.ip != '0.0.0.0') {
+            pollStatus();
+            setInterval(pollStatus, adapter.config.pollInterval * 1000);
+        }
     });
 }
 
